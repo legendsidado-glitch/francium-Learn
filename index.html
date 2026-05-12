@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Françium | Apprenez le Français</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --french-blue: #002395;
+            --french-white: #ffffff;
+            --french-red: #ed2939;
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.5);
+            --neon-blue: #00f3ff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --dark-navy: #050a18;
+        }
+
+        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes wave { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(2deg); } }
+        @keyframes glow-pink { 0%, 100% { box-shadow: 0 0 5px #ec4899; } 50% { box-shadow: 0 0 20px #ec4899; } }
+        @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes float { 0% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } 100% { transform: translateY(0px) rotate(0deg); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #0a192f, #050a18);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .gold-gradient {
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #050a18;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        .logo-circle {
+            position: absolute;
+            inset: 0;
+            border: 4px solid var(--gold);
+            border-radius: 50%;
+            animation: rotate 4s linear infinite;
+        }
+
+        .level-node {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .level-node.locked {
+            filter: grayscale(1);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .rarity-sinplex { 
+            border-left: 5px solid #fff; 
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff); 
+            background-size: 400% 400%; 
+            animation: gradient-shift 3s infinite; 
+        }
+
+        .hidden-section { display: none; }
+        
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <div id="loadingScreen" class="loading-screen">
+        <div class="relative w-40 h-40 flex flex-col items-center justify-center">
+            <div class="logo-circle"></div>
+            <div class="w-20 h-12 bg-gradient-to-r from-[#002395] via-white to-[#ed2939] rounded shadow-2xl animate-pulse"></div>
+            <h1 class="text-3xl font-black mt-10 tracking-widest gold-gradient">FRANÇIUM</h1>
+        </div>
+        <div class="w-64 h-2 bg-gray-800 rounded-full mt-10 overflow-hidden border border-gray-700">
+            <div id="loadingBar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <p id="loadingText" class="mt-4 text-gray-400 font-mono">Préparation de l'excellence... 0%</p>
+    </div>
+
+    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 glass m-4 px-6 py-3 flex items-center justify-between transition-all duration-300 transform -translate-y-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-5 bg-white rounded-sm overflow-hidden flex shadow-lg">
+                <div class="w-1/3 bg-[#002395]"></div>
+                <div class="w-1/3 bg-white"></div>
+                <div class="w-1/3 bg-[#ed2939]"></div>
+            </div>
+            <span class="text-xl font-bold tracking-tighter">FRANÇIUM</span>
+        </div>
+
+        <div class="hidden md:flex items-center gap-6">
+            <button onclick="showSection('learning')" class="nav-link hover:text-blue-400 transition font-medium">Apprendre</button>
+            <button onclick="showSection('stats')" class="nav-link hover:text-blue-400 transition font-medium">Stats</button>
+            <button onclick="showSection('shop')" class="nav-link hover:text-blue-400 transition font-medium">Boutique</button>
+            <button onclick="showSection('gamepasses')" class="nav-link hover:text-blue-400 transition font-medium">Crates</button>
+            <button onclick="showSection('settings')" class="nav-link hover:text-blue-400 transition font-medium"><i class="fas fa-cog"></i></button>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 glass px-3 py-1 rounded-full border-blue-500/30 border">
+                <i class="fas fa-coins text-yellow-500"></i>
+                <span id="coinCount" class="font-bold">0</span>
+            </div>
+            <div class="flex items-center gap-2 glass px-3 py-1 rounded-full border-orange-500/30 border">
+                <i class="fas fa-fire text-orange-500"></i>
+                <span id="streakCount" class="font-bold">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-20 px-4 max-w-7xl mx-auto">
+        <section id="learningSection" class="section-content">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-4xl font-extrabold mb-2">Bonjour! 👋</h2>
+                    <p class="text-gray-400">Continuez votre aventure vers la maîtrise.</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs uppercase tracking-widest text-blue-400 font-bold">Niveau Débloqué</span>
+                    <h3 id="currentLevelDisplay" class="text-2xl font-bold gold-gradient">Chargement...</h3>
+                </div>
+            </div>
+
+            <div id="levelMap" class="relative py-10 flex flex-col items-center gap-16">
+                <!-- Levels injected here -->
+            </div>
+        </section>
+
+        <section id="statsSection" class="section-content hidden-section">
+            <h2 class="text-3xl font-bold mb-8 text-center">Profil Éducatif</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass p-8 flex flex-col items-center">
+                    <i class="fas fa-tasks text-4xl text-blue-500 mb-4"></i>
+                    <span class="text-4xl font-black mb-1" id="statTasks">0</span>
+                    <span class="text-gray-400 uppercase text-xs tracking-widest">Tâches Accomplies</span>
+                </div>
+                <div class="glass p-8 flex flex-col items-center">
+                    <i class="fas fa-star text-4xl text-yellow-500 mb-4"></i>
+                    <span class="text-4xl font-black mb-1" id="statXP">0</span>
+                    <span class="text-gray-400 uppercase text-xs tracking-widest">Points XP</span>
+                </div>
+                <div class="glass p-8 flex flex-col items-center">
+                    <i class="fas fa-bullseye text-4xl text-red-500 mb-4"></i>
+                    <span class="text-4xl font-black mb-1" id="statAccuracy">100%</span>
+                    <span class="text-gray-400 uppercase text-xs tracking-widest">Précision Moyenne</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="shopSection" class="section-content hidden-section">
+            <h2 class="text-3xl font-bold mb-2">Boutique de Prestige</h2>
+            <p class="text-gray-400 mb-10">Dépensez vos pièces pour des cosmétiques exclusifs.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="shopGrid">
+                <!-- Shop items -->
+                <div class="glass p-6 border-t-2 border-blue-500">
+                    <div class="h-32 bg-gradient-to-br from-blue-900 to-black rounded-xl mb-4 flex items-center justify-center">
+                        <i class="fas fa-palette text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold">Thème Nuit de Paris</h3>
+                    <p class="text-xs text-gray-400 mb-4">Un bleu profond pour les sessions nocturnes.</p>
+                    <button class="w-full py-2 bg-blue-600 rounded-lg font-bold">500 Pièces</button>
+                </div>
+                <div class="glass p-6 border-t-2 border-yellow-500">
+                    <div class="h-32 bg-gradient-to-br from-yellow-700 to-yellow-900 rounded-xl mb-4 flex items-center justify-center">
+                        <i class="fas fa-crown text-3xl text-yellow-300"></i>
+                    </div>
+                    <h3 class="font-bold">Mode Versailles Gold</h3>
+                    <p class="text-xs text-gray-400 mb-4">Interface dorée digne d'un roi.</p>
+                    <button class="w-full py-2 bg-yellow-600 rounded-lg font-bold">5,000 Pièces</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="gamepassesSection" class="section-content hidden-section">
+            <h2 class="text-3xl font-bold mb-10 text-center">Système de Butin</h2>
+            <div class="flex flex-col items-center mb-16">
+                <div class="relative w-48 h-48 group cursor-pointer" onclick="openCrate()">
+                    <div class="absolute inset-0 bg-blue-500 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition"></div>
+                    <div class="w-full h-full glass flex flex-col items-center justify-center rounded-3xl border-2 border-gold-glow animate-bounce">
+                        <i class="fas fa-box-open text-6xl text-yellow-500 mb-2"></i>
+                        <span class="font-black">COFFRE</span>
+                    </div>
+                    <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-yellow-600 px-6 py-2 rounded-full font-bold shadow-xl">1,000 Pièces</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="settingsSection" class="section-content hidden-section">
+            <h2 class="text-3xl font-bold mb-8">Paramètres & Codes</h2>
+            <div class="glass p-8 max-w-2xl mx-auto space-y-8">
+                <div>
+                    <h4 class="font-bold mb-4 text-gold">Code Promotionnel</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="promoCode" placeholder="Code..." class="flex-1 bg-slate-900 border border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition">
+                        <button onclick="redeemCode()" class="px-6 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition">Valider</button>
+                    </div>
+                </div>
+                <button onclick="resetData()" class="w-full py-3 text-red-500 hover:bg-red-500/10 rounded-xl transition text-sm">Réinitialiser le compte</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="taskModal" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4 hidden">
+        <div class="glass w-full max-w-2xl p-8 relative overflow-hidden">
+            <div id="taskProgressBar" class="absolute top-0 left-0 h-1 bg-gradient-to-r from-blue-500 via-white to-red-500 transition-all duration-300" style="width: 0%"></div>
+            
+            <button onclick="closeTask()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+
+            <div id="taskContent" class="py-6 flex flex-col items-center">
+                <!-- Content injected here -->
+            </div>
+
+            <div id="feedbackBox" class="hidden mt-6 p-4 rounded-xl text-center font-bold"></div>
+        </div>
+    </div>
+
+    <script>
+        const APP_STATE = {
+            coins: 0,
+            xp: 0,
+            streak: 0,
+            unlockedLevel: 1,
+            tasksFinished: 0,
+            accuracy: 100
+        };
+
+        const VOCAB_POOL = [
+            { q: "La Maison", a: "The House", type: "Translation", opts: ["The Car", "The School", "The Tree"] },
+            { q: "Je mange", a: "I eat", type: "Grammar", opts: ["I sleep", "I drink", "I walk"] },
+            { q: "Le Chat", a: "The Cat", type: "Vocabulary", opts: ["The Dog", "The Bird", "The Horse"] },
+            { q: "Où est la gare?", a: "Where is the station?", type: "Sentence", opts: ["How is the station?", "Who is the station?", "When is the station?"] },
+            { q: "Merci beaucoup", a: "Thank you very much", type: "Politeness", opts: ["You are welcome", "Hello there", "Goodbye"] },
+            { q: "Une Pomme", a: "An Apple", type: "Fruit", opts: ["A Pear", "An Orange", "A Banana"] },
+            { q: "Il est tard", a: "It is late", type: "Time", opts: ["It is early", "It is noon", "It is night"] },
+            { q: "Comment allez-vous?", a: "How are you?", type: "Greetings", opts: ["What are you?", "Who are you?", "Where are you?"] },
+            { q: "L'eau", a: "The water", type: "Nature", opts: ["The fire", "The earth", "The wind"] }
+        ];
+
+        const LEVELS = [];
+        const levelsCount = 25;
+        const tasksPerLevel = 5;
+
+        // Generate 125 unique tasks
+        for (let i = 1; i <= levelsCount; i++) {
+            const level = { id: i, name: `Niveau ${i}`, tasks: [] };
+            for (let j = 1; j <= tasksPerLevel; j++) {
+                const base = VOCAB_POOL[(i * j) % VOCAB_POOL.length];
+                level.tasks.push({
+                    id: (i - 1) * 5 + j,
+                    question: base.q,
+                    answer: base.a,
+                    type: base.type,
+                    options: [base.a, ...base.opts],
+                    reward: 10 + (i * 2)
+                });
+            }
+            LEVELS.push(level);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('francium_data_v2');
+            if (saved) Object.assign(APP_STATE, JSON.parse(saved));
+        }
+
+        function saveState() {
+            localStorage.setItem('francium_data_v2', JSON.stringify(APP_STATE));
+        }
+
+        window.onload = () => {
+            loadState();
+            simulateLoading();
+            createParticles();
+        };
+
+        function simulateLoading() {
+            const bar = document.getElementById('loadingBar');
+            const text = document.getElementById('loadingText');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').style.opacity = '0';
+                        document.getElementById('loadingScreen').style.visibility = 'hidden';
+                        document.getElementById('mainNav').style.transform = 'translateY(0)';
+                        renderMap();
+                        updateUI();
+                    }, 500);
+                }
+                bar.style.width = progress + '%';
+                text.innerText = `Chargement de votre futur... ${Math.round(progress)}%`;
+            }, 100);
+        }
+
+        function updateUI() {
+            document.getElementById('coinCount').innerText = APP_STATE.coins.toLocaleString();
+            document.getElementById('streakCount').innerText = APP_STATE.streak;
+            document.getElementById('currentLevelDisplay').innerText = `Level ${APP_STATE.unlockedLevel}`;
+            document.getElementById('statTasks').innerText = APP_STATE.tasksFinished;
+            document.getElementById('statXP').innerText = APP_STATE.xp;
+            document.getElementById('statAccuracy').innerText = APP_STATE.accuracy + "%";
+        }
+
+        function renderMap() {
+            const container = document.getElementById('levelMap');
+            container.innerHTML = '';
+            LEVELS.forEach((lvl, idx) => {
+                const isLocked = lvl.id > APP_STATE.unlockedLevel;
+                const node = document.createElement('div');
+                node.className = `level-node ${isLocked ? 'locked glass' : 'bg-blue-600 shadow-blue-500/50 shadow-xl'} scale-110`;
+                node.innerHTML = `<span>${lvl.id}</span>`;
+                if (!isLocked) node.onclick = () => openLevel(lvl);
+                container.appendChild(node);
+
+                if (idx < LEVELS.length - 1) {
+                    const line = document.createElement('div');
+                    line.className = 'w-1 h-12 bg-gray-800 rounded-full';
+                    container.appendChild(line);
+                }
+            });
+        }
+
+        let currentTaskIdx = 0;
+        let activeLevel = null;
+
+        function openLevel(level) {
+            activeLevel = level;
+            currentTaskIdx = 0;
+            showTask(level.tasks[0]);
+            document.getElementById('taskModal').classList.remove('hidden');
+        }
+
+        function showTask(task) {
+            const container = document.getElementById('taskContent');
+            const progress = (currentTaskIdx / tasksPerLevel) * 100;
+            document.getElementById('taskProgressBar').style.width = progress + '%';
+
+            // Shuffle options for this specific instance
+            const shuffledOptions = shuffle([...task.options]);
+
+            container.innerHTML = `
+                <span class="text-xs font-bold text-blue-400 tracking-tighter uppercase mb-2">${task.type} Mode</span>
+                <h2 class="text-3xl font-black text-center mb-10 px-4">${task.question}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-4">
+                    ${shuffledOptions.map(opt => `
+                        <button onclick="checkAnswer('${opt}', '${task.answer}')" 
+                                class="glass p-6 rounded-2xl hover:bg-white/10 hover:scale-[1.02] active:scale-95 transition-all text-lg font-semibold border-b-4 border-white/10 active:border-b-0">
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function checkAnswer(selected, correct) {
+            const fb = document.getElementById('feedbackBox');
+            fb.classList.remove('hidden', 'bg-green-500/20', 'text-green-500', 'bg-red-500/20', 'text-red-500', 'animate-shake');
+            
+            if (selected === correct) {
+                fb.innerText = "EXCELLENT! +15 XP";
+                fb.className = "mt-6 p-4 rounded-xl text-center font-bold bg-green-500/20 text-green-500";
+                if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 70, origin: { y: 0.8 } });
+                setTimeout(() => {
+                    fb.classList.add('hidden');
+                    nextTask();
+                }, 1000);
+            } else {
+                fb.innerText = "CE N'EST PAS ÇA! RÉESSAYEZ.";
+                fb.className = "mt-6 p-4 rounded-xl text-center font-bold bg-red-500/20 text-red-500 animate-shake";
+                APP_STATE.accuracy = Math.max(0, APP_STATE.accuracy - 5);
+                updateUI();
+            }
+        }
+
+        function nextTask() {
+            currentTaskIdx++;
+            if (currentTaskIdx < tasksPerLevel) {
+                showTask(activeLevel.tasks[currentTaskIdx]);
+            } else {
+                finishLevel();
+            }
+        }
+
+        function finishLevel() {
+            const reward = 50 + (activeLevel.id * 10);
+            APP_STATE.coins += reward;
+            APP_STATE.xp += 100;
+            APP_STATE.tasksFinished += 5;
+            if (activeLevel.id === APP_STATE.unlockedLevel) APP_STATE.unlockedLevel++;
+            
+            saveState();
+            updateUI();
+            renderMap();
+            closeTask();
+
+            // Simple Success Overlay
+            const overlay = document.createElement('div');
+            overlay.className = "fixed inset-0 z-[200] flex items-center justify-center bg-blue-900/40 backdrop-blur-md";
+            overlay.innerHTML = `<div class='glass p-12 text-center'><h1 class='text-5xl font-black gold-gradient'>BRAVO!</h1><p class='mt-4 text-xl'>+${reward} Pièces récoltées</p></div>`;
+            document.body.appendChild(overlay);
+            setTimeout(() => overlay.remove(), 2000);
+        }
+
+        function closeTask() { document.getElementById('taskModal').classList.add('hidden'); }
+
+        function showSection(id) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden-section'));
+            document.getElementById(id + 'Section').classList.remove('hidden-section');
+            window.scrollTo(0,0);
+        }
+
+        function redeemCode() {
+            const code = document.getElementById('promoCode').value.trim();
+            if (code === "new") {
+                APP_STATE.coins += 50;
+                alert("Code validé! +50 Pièces");
+            } else if (code === "Legend.AymanPlaying2024.Exe") {
+                APP_STATE.coins += 999999;
+                alert("Cheat Code Activé: Richesse Infinie!");
+            }
+            saveState(); updateUI();
+        }
+
+        function createParticles() {
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 3 + 1;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = Math.random() * 100 + 'vh';
+                p.style.animation = `float ${Math.random() * 5 + 5}s infinite ease-in-out`;
+                document.body.appendChild(p);
+            }
+        }
+
+        function resetData() {
+            if(confirm("Effacer définitivement votre progression?")) {
+                localStorage.removeItem('francium_data_v2');
+                window.location.reload();
+            }
+        }
+
+        function openCrate() {
+            if (APP_STATE.coins < 1000) return alert("Pas assez de pièces!");
+            APP_STATE.coins -= 1000;
+            updateUI();
+            if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 120, colors: ['#ffd700', '#ffffff', '#002395'] });
+            saveState();
+        }
+    </script>
+</body>
+</html>
