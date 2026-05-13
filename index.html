@@ -3,415 +3,589 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Françium | Apprenez le Français</title>
+    <title>Françium | Apprendre le Français</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
             --french-blue: #002395;
             --french-white: #ffffff;
             --french-red: #ed2939;
-            --gold: #d4af37;
-            --gold-glow: rgba(212, 175, 55, 0.5);
-            --neon-blue: #00f3ff;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --dark-navy: #050a18;
-        }
-
-        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes wave { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(2deg); } }
-        @keyframes glow-pink { 0%, 100% { box-shadow: 0 0 5px #ec4899; } 50% { box-shadow: 0 0 20px #ec4899; } }
-        @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes float { 0% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } 100% { transform: translateY(0px) rotate(0deg); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            --luxury-gold: #D4AF37;
+            --gold-gradient: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            --navy-dark: #0a0e17;
+            --glass: rgba(255, 255, 255, 0.1);
+            --neon-blue: 0 0 15px rgba(0, 150, 255, 0.7);
         }
 
         body {
-            background: radial-gradient(circle at top right, #0a192f, #050a18);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--navy-dark);
             color: white;
-            min-height: 100vh;
             overflow-x: hidden;
-            scroll-behavior: smooth;
+            margin: 0;
+            transition: all 0.5s ease;
         }
+
+        /* Dynamic Themes for Packs */
+        body.theme-galactic { --navy-dark: #05010a; --french-blue: #4b0082; }
+        body.theme-ocean { --navy-dark: #001a1a; --french-blue: #008080; }
+        body.theme-desert { --navy-dark: #1a0f00; --french-blue: #8b4513; --luxury-gold: #ffcc00; }
 
         .glass {
             background: var(--glass);
             backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
         }
 
-        .gold-gradient {
-            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+        .gold-text {
+            background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 800;
         }
 
-        .loading-screen {
+        #loading-screen {
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: #050a18;
+            background: radial-gradient(circle at center, #002395, #000);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.8s ease, visibility 0.8s;
+            transition: opacity 1s ease-out, transform 1s ease-in;
         }
 
-        .logo-circle {
+        .logo-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin-bottom: 2rem;
+        }
+
+        .flag-wave {
             position: absolute;
-            inset: 0;
-            border: 4px solid var(--gold);
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            animation: rotate 4s linear infinite;
+            border: 4px solid transparent;
+            border-top-color: var(--french-blue);
+            border-bottom-color: var(--french-red);
+            animation: spin 2s linear infinite;
         }
 
-        .level-node {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .loading-bar-container {
+            width: 300px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--luxury-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        #loading-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--french-blue), var(--french-white), var(--french-red));
+            transition: width 0.1s linear;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            z-index: 1000;
+            padding: 0 2rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            position: relative;
-            z-index: 2;
-            cursor: pointer;
-            transition: 0.3s;
+            justify-content: space-between;
+            transition: all 0.3s ease;
         }
 
-        .level-node.locked {
-            filter: grayscale(1);
-            opacity: 0.5;
+        nav.scrolled {
+            height: 60px;
+            background: rgba(10, 14, 23, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--luxury-gold);
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .nav-link:hover {
+            color: var(--luxury-gold);
+            transform: translateY(-2px);
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--luxury-gold);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after { width: 80%; }
+
+        .level-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-card:hover:not(.locked) {
+            transform: scale(1.05) translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0, 35, 149, 0.3);
+        }
+
+        .level-card.locked {
+            filter: grayscale(1) opacity(0.6);
             cursor: not-allowed;
         }
 
+        .btn-premium {
+            background: var(--gold-gradient);
+            color: #000;
+            font-weight: 800;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-premium:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .item-card {
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+
+        .item-card:hover {
+            border-color: var(--luxury-gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .rarity-common { color: #888; }
+        .rarity-rare { color: #0070dd; text-shadow: 0 0 5px #0070dd; }
+        .rarity-epic { color: #a335ee; text-shadow: 0 0 8px #a335ee; }
+        .rarity-legendary { color: #ff8000; text-shadow: 0 0 10px #ff8000; }
         .rarity-sinplex { 
-            border-left: 5px solid #fff; 
-            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff); 
-            background-size: 400% 400%; 
-            animation: gradient-shift 3s infinite; 
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 2s linear infinite;
         }
 
-        .hidden-section { display: none; }
-        
-        .particle {
+        @keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+
+        /* Task UI Animation */
+        .task-card {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Particle Background */
+        #particles-js {
             position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             pointer-events: none;
-            z-index: 0;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.3;
         }
-
-        .animate-shake { animation: shake 0.4s ease-in-out; }
     </style>
 </head>
-<body>
+<body class="bg-[#0a0e17] overflow-x-hidden">
 
-    <div id="loadingScreen" class="loading-screen">
-        <div class="relative w-40 h-40 flex flex-col items-center justify-center">
-            <div class="logo-circle"></div>
-            <div class="w-20 h-12 bg-gradient-to-r from-[#002395] via-white to-[#ed2939] rounded shadow-2xl animate-pulse"></div>
-            <h1 class="text-3xl font-black mt-10 tracking-widest gold-gradient">FRANÇIUM</h1>
+    <canvas id="particles-js"></canvas>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="logo-container">
+            <div class="flag-wave"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="fas fa-crown text-4xl gold-text"></i>
+            </div>
         </div>
-        <div class="w-64 h-2 bg-gray-800 rounded-full mt-10 overflow-hidden border border-gray-700">
-            <div id="loadingBar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+        <h1 class="text-4xl font-black gold-text mb-4">FRANÇIUM</h1>
+        <p class="text-white/60 mb-8 italic">Chargement de l'excellence...</p>
+        <div class="loading-bar-container">
+            <div id="loading-bar-fill"></div>
         </div>
-        <p id="loadingText" class="mt-4 text-gray-400 font-mono">Préparation de l'excellence... 0%</p>
+        <div id="loading-percent" class="mt-2 text-luxury-gold font-bold">0%</div>
     </div>
 
-    <nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 glass m-4 px-6 py-3 flex items-center justify-between transition-all duration-300 transform -translate-y-20">
+    <!-- Navigation Header -->
+    <nav id="main-nav">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-5 bg-white rounded-sm overflow-hidden flex shadow-lg">
-                <div class="w-1/3 bg-[#002395]"></div>
-                <div class="w-1/3 bg-white"></div>
-                <div class="w-1/3 bg-[#ed2939]"></div>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-white to-red-600 p-[2px]">
+                <div class="w-full h-full bg-navy-dark rounded-[10px] flex items-center justify-center">
+                    <span class="font-black text-xs">FR</span>
+                </div>
             </div>
             <span class="text-xl font-bold tracking-tighter">FRANÇIUM</span>
         </div>
 
-        <div class="hidden md:flex items-center gap-6">
-            <button onclick="showSection('learning')" class="nav-link hover:text-blue-400 transition font-medium">Apprendre</button>
-            <button onclick="showSection('stats')" class="nav-link hover:text-blue-400 transition font-medium">Stats</button>
-            <button onclick="showSection('shop')" class="nav-link hover:text-blue-400 transition font-medium">Boutique</button>
-            <button onclick="showSection('gamepasses')" class="nav-link hover:text-blue-400 transition font-medium">Crates</button>
-            <button onclick="showSection('settings')" class="nav-link hover:text-blue-400 transition font-medium"><i class="fas fa-cog"></i></button>
+        <div class="hidden md:flex items-center gap-8">
+            <div class="nav-link" onclick="showSection('learning')">Learning</div>
+            <div class="nav-link" onclick="showSection('stats')">Stats</div>
+            <div class="nav-link" onclick="showSection('shop')">Shop</div>
+            <div class="nav-link" onclick="showSection('gamepasses')">Gamepasses</div>
+            <div class="nav-link" onclick="showSection('settings')">Settings</div>
         </div>
 
         <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 glass px-3 py-1 rounded-full border-blue-500/30 border">
-                <i class="fas fa-coins text-yellow-500"></i>
-                <span id="coinCount" class="font-bold">0</span>
-            </div>
-            <div class="flex items-center gap-2 glass px-3 py-1 rounded-full border-orange-500/30 border">
+            <div class="glass px-3 py-1 flex items-center gap-2 border-yellow-500/30">
                 <i class="fas fa-fire text-orange-500"></i>
-                <span id="streakCount" class="font-bold">0</span>
+                <span id="nav-streak" class="font-bold text-sm">0</span>
+            </div>
+            <div class="glass px-3 py-1 flex items-center gap-2 border-yellow-500/30">
+                <i class="fas fa-coins text-yellow-500"></i>
+                <span id="nav-coins" class="font-bold text-sm">0</span>
+            </div>
+            <div class="w-10 h-10 rounded-full border-2 border-luxury-gold flex items-center justify-center cursor-pointer hover:scale-110 transition">
+                <i class="fas fa-user text-sm"></i>
             </div>
         </div>
     </nav>
 
-    <main class="pt-28 pb-20 px-4 max-w-7xl mx-auto">
-        <section id="learningSection" class="section-content">
-            <div class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 class="text-4xl font-extrabold mb-2">Bonjour! 👋</h2>
-                    <p class="text-gray-400">Continuez votre aventure vers la maîtrise.</p>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs uppercase tracking-widest text-blue-400 font-bold">Niveau Débloqué</span>
-                    <h3 id="currentLevelDisplay" class="text-2xl font-bold gold-gradient">Chargement...</h3>
-                </div>
-            </div>
+    <!-- Main Content Container -->
+    <main class="pt-32 pb-20 px-4 max-w-7xl mx-auto">
+        
 
-            <div id="levelMap" class="relative py-10 flex flex-col items-center gap-16">
-                <!-- Levels injected here -->
+        <!-- LEARNING SECTION -->
+        <section id="section-learning" class="content-section">
+            <header class="text-center mb-12">
+                <h2 class="text-5xl font-black mb-4">Your Journey</h2>
+                <p class="text-white/60">Unlock 125 unique tasks to master the language of love.</p>
+            </header>
+            
+            <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <!-- Level cards injected by JS -->
             </div>
         </section>
 
-        <section id="statsSection" class="section-content hidden-section">
-            <h2 class="text-3xl font-bold mb-8 text-center">Profil Éducatif</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass p-8 flex flex-col items-center">
-                    <i class="fas fa-tasks text-4xl text-blue-500 mb-4"></i>
-                    <span class="text-4xl font-black mb-1" id="statTasks">0</span>
-                    <span class="text-gray-400 uppercase text-xs tracking-widest">Tâches Accomplies</span>
-                </div>
-                <div class="glass p-8 flex flex-col items-center">
+        <!-- STATS SECTION -->
+        <section id="section-stats" class="content-section hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass p-8 text-center">
                     <i class="fas fa-star text-4xl text-yellow-500 mb-4"></i>
-                    <span class="text-4xl font-black mb-1" id="statXP">0</span>
-                    <span class="text-gray-400 uppercase text-xs tracking-widest">Points XP</span>
+                    <h3 class="text-4xl font-black" id="stat-xp">0</h3>
+                    <p class="text-white/50">Total XP Earned</p>
                 </div>
-                <div class="glass p-8 flex flex-col items-center">
-                    <i class="fas fa-bullseye text-4xl text-red-500 mb-4"></i>
-                    <span class="text-4xl font-black mb-1" id="statAccuracy">100%</span>
-                    <span class="text-gray-400 uppercase text-xs tracking-widest">Précision Moyenne</span>
+                <div class="glass p-8 text-center">
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-4xl font-black" id="stat-tasks">0</h3>
+                    <p class="text-white/50">Tasks Completed</p>
+                </div>
+                <div class="glass p-8 text-center">
+                    <i class="fas fa-bolt text-4xl text-blue-500 mb-4"></i>
+                    <h3 class="text-4xl font-black" id="stat-accuracy">0%</h3>
+                    <p class="text-white/50">Average Accuracy</p>
+                </div>
+            </div>
+            <div class="glass mt-8 p-8 h-64 flex items-end justify-between gap-2 overflow-hidden relative">
+                <div class="absolute top-4 left-8 font-bold text-white/20 uppercase tracking-widest">Activity Graph</div>
+                <!-- Mock Bar Chart -->
+                <div class="bg-blue-500/50 w-full rounded-t-lg" style="height: 40%"></div>
+                <div class="bg-white/30 w-full rounded-t-lg" style="height: 60%"></div>
+                <div class="bg-red-500/50 w-full rounded-t-lg" style="height: 30%"></div>
+                <div class="bg-yellow-500/50 w-full rounded-t-lg" style="height: 80%"></div>
+                <div class="bg-blue-500/50 w-full rounded-t-lg" style="height: 50%"></div>
+                <div class="bg-white/30 w-full rounded-t-lg" style="height: 90%"></div>
+                <div class="bg-red-500/50 w-full rounded-t-lg" style="height: 20%"></div>
+            </div>
+        </section>
+
+        <!-- SHOP SECTION -->
+        <section id="section-shop" class="content-section hidden">
+            <div class="mb-8 flex justify-between items-center">
+                <h2 class="text-4xl font-black">Boutique de Luxe</h2>
+                <div class="text-luxury-gold flex items-center gap-2 text-2xl font-bold">
+                    <i class="fas fa-coins"></i> <span id="shop-coins">0</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Shop items injected by JS -->
+                <div class="glass p-6 border-l-4 border-blue-500 group cursor-pointer hover:bg-white/5" onclick="buyItem('theme-neon')">
+                    <div class="text-xs text-blue-400 font-bold mb-2">INTERFACE SKIN</div>
+                    <h4 class="text-xl font-bold mb-4">Neon Pulse</h4>
+                    <div class="flex justify-between items-center">
+                        <span class="text-luxury-gold font-bold">5,000 Coins</span>
+                        <button class="bg-blue-500 px-4 py-1 rounded-full text-xs font-bold">BUY</button>
+                    </div>
+                </div>
+                <div class="glass p-6 border-l-4 border-luxury-gold group cursor-pointer hover:bg-white/5" onclick="buyItem('text-gold')">
+                    <div class="text-xs text-yellow-500 font-bold mb-2">TEXT EFFECT</div>
+                    <h4 class="text-xl font-bold gold-text mb-4">Gold Standard</h4>
+                    <div class="flex justify-between items-center">
+                        <span class="text-luxury-gold font-bold">12,500 Coins</span>
+                        <button class="bg-yellow-600 px-4 py-1 rounded-full text-xs font-bold">BUY</button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="shopSection" class="section-content hidden-section">
-            <h2 class="text-3xl font-bold mb-2">Boutique de Prestige</h2>
-            <p class="text-gray-400 mb-10">Dépensez vos pièces pour des cosmétiques exclusifs.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="shopGrid">
-                <!-- Shop items -->
-                <div class="glass p-6 border-t-2 border-blue-500">
-                    <div class="h-32 bg-gradient-to-br from-blue-900 to-black rounded-xl mb-4 flex items-center justify-center">
-                        <i class="fas fa-palette text-3xl"></i>
+        <!-- GAMEPASSES SECTION -->
+        <section id="section-gamepasses" class="content-section hidden">
+            <h2 class="text-4xl font-black mb-8">Mystery Crates</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <!-- Crate 1 -->
+                <div class="text-center group">
+                    <div class="relative w-48 h-48 mx-auto mb-6 transform group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-blue-500 blur-3xl opacity-20 group-hover:opacity-40"></div>
+                        <img src="https://placehold.co/200x200/0a0e17/D4AF37?text=CRATE" class="w-full h-full object-contain relative z-10 rounded-3xl border-2 border-white/10" alt="Crate">
+                        <div class="absolute -top-4 -right-4 bg-blue-600 px-3 py-1 rounded-lg text-xs font-bold">RARE</div>
                     </div>
-                    <h3 class="font-bold">Thème Nuit de Paris</h3>
-                    <p class="text-xs text-gray-400 mb-4">Un bleu profond pour les sessions nocturnes.</p>
-                    <button class="w-full py-2 bg-blue-600 rounded-lg font-bold">500 Pièces</button>
+                    <h3 class="text-2xl font-bold mb-2">Standard Crate</h3>
+                    <p class="text-white/40 mb-6 italic">Odds of Legendary: 1.5%</p>
+                    <button onclick="openCrate(1000)" class="btn-premium w-full py-4">OPEN (1,000 COINS)</button>
                 </div>
-                <div class="glass p-6 border-t-2 border-yellow-500">
-                    <div class="h-32 bg-gradient-to-br from-yellow-700 to-yellow-900 rounded-xl mb-4 flex items-center justify-center">
-                        <i class="fas fa-crown text-3xl text-yellow-300"></i>
+                <!-- Crate 2 -->
+                <div class="text-center group">
+                    <div class="relative w-48 h-48 mx-auto mb-6 transform group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-purple-500 blur-3xl opacity-20 group-hover:opacity-40"></div>
+                        <img src="https://placehold.co/200x200/0a0e17/a335ee?text=EPIC" class="w-full h-full object-contain relative z-10 rounded-3xl border-2 border-white/10" alt="Crate">
+                        <div class="absolute -top-4 -right-4 bg-purple-600 px-3 py-1 rounded-lg text-xs font-bold">EPIC</div>
                     </div>
-                    <h3 class="font-bold">Mode Versailles Gold</h3>
-                    <p class="text-xs text-gray-400 mb-4">Interface dorée digne d'un roi.</p>
-                    <button class="w-full py-2 bg-yellow-600 rounded-lg font-bold">5,000 Pièces</button>
+                    <h3 class="text-2xl font-bold mb-2">Imperial Crate</h3>
+                    <p class="text-white/40 mb-6 italic">Odds of Legendary: 12%</p>
+                    <button onclick="openCrate(5000)" class="btn-premium w-full py-4">OPEN (5,000 COINS)</button>
+                </div>
+                <!-- Crate 3 -->
+                <div class="text-center group">
+                    <div class="relative w-48 h-48 mx-auto mb-6 transform group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-yellow-500 blur-3xl opacity-20 group-hover:opacity-40"></div>
+                        <img src="https://placehold.co/200x200/0a0e17/ff8000?text=MYTHIC" class="w-full h-full object-contain relative z-10 rounded-3xl border-2 border-white/10" alt="Crate">
+                        <div class="absolute -top-4 -right-4 bg-yellow-600 px-3 py-1 rounded-lg text-xs font-bold">SINPLEX</div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Divine Crate</h3>
+                    <p class="text-white/40 mb-6 italic">Exclusive Mythicals</p>
+                    <button onclick="openCrate(25000)" class="btn-premium w-full py-4">OPEN (25,000 COINS)</button>
                 </div>
             </div>
         </section>
 
-        <section id="gamepassesSection" class="section-content hidden-section">
-            <h2 class="text-3xl font-bold mb-10 text-center">Système de Butin</h2>
-            <div class="flex flex-col items-center mb-16">
-                <div class="relative w-48 h-48 group cursor-pointer" onclick="openCrate()">
-                    <div class="absolute inset-0 bg-blue-500 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition"></div>
-                    <div class="w-full h-full glass flex flex-col items-center justify-center rounded-3xl border-2 border-gold-glow animate-bounce">
-                        <i class="fas fa-box-open text-6xl text-yellow-500 mb-2"></i>
-                        <span class="font-black">COFFRE</span>
+        <!-- SETTINGS SECTION -->
+        <section id="section-settings" class="content-section hidden">
+            <div class="max-w-2xl mx-auto glass p-10">
+                <h2 class="text-3xl font-black mb-8 border-b border-white/10 pb-4">Settings</h2>
+                
+                <div class="space-y-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold">Music & Ambience</h4>
+                            <p class="text-sm text-white/50">Cinematic French background music</p>
+                        </div>
+                        <input type="range" class="accent-luxury-gold">
                     </div>
-                    <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-yellow-600 px-6 py-2 rounded-full font-bold shadow-xl">1,000 Pièces</div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold">Particle Intensity</h4>
+                            <p class="text-sm text-white/50">Adjust performance for your device</p>
+                        </div>
+                        <select class="bg-navy-dark border border-white/10 rounded-lg p-2 text-sm">
+                            <option>High (Premium)</option>
+                            <option>Medium</option>
+                            <option>Low (Eco)</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/10">
+                        <h4 class="font-bold mb-4">Promo Code</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="promo-input" placeholder="Enter Code..." class="bg-black/50 border border-white/10 rounded-xl px-4 py-3 w-full focus:border-luxury-gold outline-none">
+                            <button onclick="redeemCode()" class="bg-luxury-gold text-black font-black px-6 rounded-xl hover:scale-105 transition">REDEEM</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="settingsSection" class="section-content hidden-section">
-            <h2 class="text-3xl font-bold mb-8">Paramètres & Codes</h2>
-            <div class="glass p-8 max-w-2xl mx-auto space-y-8">
-                <div>
-                    <h4 class="font-bold mb-4 text-gold">Code Promotionnel</h4>
-                    <div class="flex gap-2">
-                        <input type="text" id="promoCode" placeholder="Code..." class="flex-1 bg-slate-900 border border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition">
-                        <button onclick="redeemCode()" class="px-6 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition">Valider</button>
-                    </div>
-                </div>
-                <button onclick="resetData()" class="w-full py-3 text-red-500 hover:bg-red-500/10 rounded-xl transition text-sm">Réinitialiser le compte</button>
-            </div>
-        </section>
     </main>
 
-    <div id="taskModal" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4 hidden">
-        <div class="glass w-full max-w-2xl p-8 relative overflow-hidden">
-            <div id="taskProgressBar" class="absolute top-0 left-0 h-1 bg-gradient-to-r from-blue-500 via-white to-red-500 transition-all duration-300" style="width: 0%"></div>
-            
-            <button onclick="closeTask()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-
-            <div id="taskContent" class="py-6 flex flex-col items-center">
-                <!-- Content injected here -->
+    <!-- TASK MODAL -->
+    <div id="task-overlay" class="fixed inset-0 z-[2000] bg-navy-dark/95 backdrop-blur-xl hidden flex items-center justify-center p-4">
+        <div class="max-w-3xl w-full">
+            <div id="task-content" class="glass p-12 relative overflow-hidden">
+                <!-- Task logic injected here -->
             </div>
-
-            <div id="feedbackBox" class="hidden mt-6 p-4 rounded-xl text-center font-bold"></div>
         </div>
     </div>
+
+    <!-- NOTIFICATION SYSTEM -->
+    <div id="toast-container" class="fixed bottom-10 right-10 z-[3000] flex flex-col gap-3"></div>
 
     <script>
         const APP_STATE = {
             coins: 0,
             xp: 0,
             streak: 0,
-            unlockedLevel: 1,
-            tasksFinished: 0,
-            accuracy: 100
+            level: 1,
+            tasksCompleted: 0,
+            accuracy: 100,
+            inventory: [],
+            completedTasks: [], // IDs of tasks done
+            lastActive: Date.now()
         };
 
-        const VOCAB_POOL = [
-            { q: "La Maison", a: "The House", type: "Translation", opts: ["The Car", "The School", "The Tree"] },
-            { q: "Je mange", a: "I eat", type: "Grammar", opts: ["I sleep", "I drink", "I walk"] },
-            { q: "Le Chat", a: "The Cat", type: "Vocabulary", opts: ["The Dog", "The Bird", "The Horse"] },
-            { q: "Où est la gare?", a: "Where is the station?", type: "Sentence", opts: ["How is the station?", "Who is the station?", "When is the station?"] },
-            { q: "Merci beaucoup", a: "Thank you very much", type: "Politeness", opts: ["You are welcome", "Hello there", "Goodbye"] },
-            { q: "Une Pomme", a: "An Apple", type: "Fruit", opts: ["A Pear", "An Orange", "A Banana"] },
-            { q: "Il est tard", a: "It is late", type: "Time", opts: ["It is early", "It is noon", "It is night"] },
-            { q: "Comment allez-vous?", a: "How are you?", type: "Greetings", opts: ["What are you?", "Who are you?", "Where are you?"] },
-            { q: "L'eau", a: "The water", type: "Nature", opts: ["The fire", "The earth", "The wind"] }
-        ];
+        const TASK_TYPES = ['translation', 'match', 'multiple', 'grammar', 'listening'];
+        const DIFFICULTIES = ['Beginner', 'Easy', 'Medium', 'Hard', 'Expert', 'Master', 'Legendary'];
 
-        const LEVELS = [];
-        const levelsCount = 25;
-        const tasksPerLevel = 5;
+        const LEVELS = Array.from({length: 25}, (_, i) => ({
+            id: i + 1,
+            title: `Level ${i + 1}: ${DIFFICULTIES[Math.floor(i/4)] || 'Legendary'}`,
+            tasks: Array.from({length: 5}, (_, j) => ({
+                id: (i * 5) + j + 1,
+                type: TASK_TYPES[Math.floor(Math.random() * TASK_TYPES.length)],
+                reward: 10 + (i * 10)
+            }))
+        }));
 
-        // Generate 125 unique tasks
-        for (let i = 1; i <= levelsCount; i++) {
-            const level = { id: i, name: `Niveau ${i}`, tasks: [] };
-            for (let j = 1; j <= tasksPerLevel; j++) {
-                const base = VOCAB_POOL[(i * j) % VOCAB_POOL.length];
-                level.tasks.push({
-                    id: (i - 1) * 5 + j,
-                    question: base.q,
-                    answer: base.a,
-                    type: base.type,
-                    options: [base.a, ...base.opts],
-                    reward: 10 + (i * 2)
-                });
-            }
-            LEVELS.push(level);
-        }
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function loadState() {
-            const saved = localStorage.getItem('francium_data_v2');
-            if (saved) Object.assign(APP_STATE, JSON.parse(saved));
-        }
-
-        function saveState() {
-            localStorage.setItem('francium_data_v2', JSON.stringify(APP_STATE));
-        }
-
-        window.onload = () => {
-            loadState();
-            simulateLoading();
-            createParticles();
-        };
-
-        function simulateLoading() {
-            const bar = document.getElementById('loadingBar');
-            const text = document.getElementById('loadingText');
+        function init() {
+            loadProgress();
+            renderLevels();
+            updateUI();
+            
+            // Loading Screen Simulation
             let progress = 0;
+            const bar = document.getElementById('loading-bar-fill');
+            const perc = document.getElementById('loading-percent');
+            
             const interval = setInterval(() => {
-                progress += Math.random() * 20;
-                if (progress >= 100) {
+                progress += Math.random() * 15;
+                if(progress >= 100) {
                     progress = 100;
                     clearInterval(interval);
                     setTimeout(() => {
-                        document.getElementById('loadingScreen').style.opacity = '0';
-                        document.getElementById('loadingScreen').style.visibility = 'hidden';
-                        document.getElementById('mainNav').style.transform = 'translateY(0)';
-                        renderMap();
-                        updateUI();
+                        document.getElementById('loading-screen').style.opacity = '0';
+                        document.getElementById('loading-screen').style.transform = 'scale(1.5)';
+                        setTimeout(() => {
+                            document.getElementById('loading-screen').style.display = 'none';
+                        }, 1000);
                     }, 500);
                 }
                 bar.style.width = progress + '%';
-                text.innerText = `Chargement de votre futur... ${Math.round(progress)}%`;
-            }, 100);
-        }
+                perc.innerText = Math.floor(progress) + '%';
+            }, 150);
 
-        function updateUI() {
-            document.getElementById('coinCount').innerText = APP_STATE.coins.toLocaleString();
-            document.getElementById('streakCount').innerText = APP_STATE.streak;
-            document.getElementById('currentLevelDisplay').innerText = `Level ${APP_STATE.unlockedLevel}`;
-            document.getElementById('statTasks').innerText = APP_STATE.tasksFinished;
-            document.getElementById('statXP').innerText = APP_STATE.xp;
-            document.getElementById('statAccuracy').innerText = APP_STATE.accuracy + "%";
-        }
-
-        function renderMap() {
-            const container = document.getElementById('levelMap');
-            container.innerHTML = '';
-            LEVELS.forEach((lvl, idx) => {
-                const isLocked = lvl.id > APP_STATE.unlockedLevel;
-                const node = document.createElement('div');
-                node.className = `level-node ${isLocked ? 'locked glass' : 'bg-blue-600 shadow-blue-500/50 shadow-xl'} scale-110`;
-                node.innerHTML = `<span>${lvl.id}</span>`;
-                if (!isLocked) node.onclick = () => openLevel(lvl);
-                container.appendChild(node);
-
-                if (idx < LEVELS.length - 1) {
-                    const line = document.createElement('div');
-                    line.className = 'w-1 h-12 bg-gray-800 rounded-full';
-                    container.appendChild(line);
-                }
+            // Scroll Effect
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('main-nav');
+                if(window.scrollY > 50) nav.classList.add('scrolled');
+                else nav.classList.remove('scrolled');
             });
         }
 
-        let currentTaskIdx = 0;
-        let activeLevel = null;
-
-        function openLevel(level) {
-            activeLevel = level;
-            currentTaskIdx = 0;
-            showTask(level.tasks[0]);
-            document.getElementById('taskModal').classList.remove('hidden');
+        function saveProgress() {
+            localStorage.setItem('FRANCIUM_SAVE', JSON.stringify(APP_STATE));
         }
 
-        function showTask(task) {
-            const container = document.getElementById('taskContent');
-            const progress = (currentTaskIdx / tasksPerLevel) * 100;
-            document.getElementById('taskProgressBar').style.width = progress + '%';
+        function loadProgress() {
+            const saved = localStorage.getItem('FRANCIUM_SAVE');
+            if(saved) Object.assign(APP_STATE, JSON.parse(saved));
+        }
 
-            // Shuffle options for this specific instance
-            const shuffledOptions = shuffle([...task.options]);
+        function updateUI() {
+            document.getElementById('nav-coins').innerText = APP_STATE.coins.toLocaleString();
+            document.getElementById('nav-streak').innerText = APP_STATE.streak;
+            document.getElementById('stat-xp').innerText = APP_STATE.xp;
+            document.getElementById('stat-tasks').innerText = APP_STATE.tasksCompleted;
+            document.getElementById('shop-coins').innerText = APP_STATE.coins;
+        }
 
-            container.innerHTML = `
-                <span class="text-xs font-bold text-blue-400 tracking-tighter uppercase mb-2">${task.type} Mode</span>
-                <h2 class="text-3xl font-black text-center mb-10 px-4">${task.question}</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-4">
-                    ${shuffledOptions.map(opt => `
-                        <button onclick="checkAnswer('${opt}', '${task.answer}')" 
-                                class="glass p-6 rounded-2xl hover:bg-white/10 hover:scale-[1.02] active:scale-95 transition-all text-lg font-semibold border-b-4 border-white/10 active:border-b-0">
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + id).classList.remove('hidden');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function renderLevels() {
+            const grid = document.getElementById('level-grid');
+            grid.innerHTML = '';
+            
+            LEVELS.forEach(lvl => {
+                const isLocked = lvl.id > APP_STATE.level;
+                const card = document.createElement('div');
+                card.className = `level-card glass p-6 ${isLocked ? 'locked' : ''}`;
+                card.onclick = () => !isLocked && startLevel(lvl.id);
+                
+                card.innerHTML = `
+                    <div class="text-xs text-luxury-gold font-bold mb-1">${DIFFICULTIES[Math.floor((lvl.id-1)/4)]}</div>
+                    <h3 class="text-xl font-black mb-4">Niveau ${lvl.id}</h3>
+                    <div class="flex justify-between items-end">
+                        <span class="text-xs text-white/40">5 Tasks</span>
+                        <i class="fas ${isLocked ? 'fa-lock text-white/20' : 'fa-play-circle text-2xl text-blue-500'}"></i>
+                    </div>
+                    ${!isLocked ? '<div class="absolute top-0 left-0 w-full h-1 bg-blue-500/50"></div>' : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        let currentTaskIndex = 0;
+        let currentLevelId = 0;
+
+        function startLevel(id) {
+            currentLevelId = id;
+            currentTaskIndex = 0;
+            document.getElementById('task-overlay').classList.remove('hidden');
+            loadTask();
+        }
+
+        const taskData = [
+            { q: "How do you say 'The Bread'?", a: "Le pain", options: ["Le vin", "Le pain", "Le chien", "La baguette"] },
+            { q: "Translate: 'Bonjour tout le monde'", a: "Hello everyone", options: ["Good night world", "Hello everyone", "Goodbye friends", "How are you"] },
+            { q: "Which is feminine?", a: "La table", options: ["Le sac", "Le livre", "La table", "Le bureau"] },
+            { q: "Conjugate: Je (être)", a: "suis", options: ["es", "est", "suis", "sommes"] }
+        ];
+
+        function loadTask() {
+            const overlay = document.getElementById('task-content');
+            const data = taskData[Math.floor(Math.random() * taskData.length)];
+            
+            overlay.innerHTML = `
+                <div class="mb-8 flex justify-between items-center">
+                    <span class="text-luxury-gold font-bold">Task ${currentTaskIndex + 1} / 5</span>
+                    <button onclick="closeTask()" class="text-white/20 hover:text-white"><i class="fas fa-times"></i></button>
+                </div>
+                <h2 class="text-3xl font-bold mb-8 text-center">${data.q}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${data.options.map(opt => `
+                        <button onclick="checkAnswer('${opt}', '${data.a}')" class="glass p-6 text-xl font-semibold hover:bg-white/10 transition border-none text-left flex items-center gap-4 group">
+                            <div class="w-8 h-8 rounded-lg bg-navy-dark flex items-center justify-center group-hover:bg-blue-600 transition"></div>
                             ${opt}
                         </button>
                     `).join('')}
@@ -420,102 +594,210 @@
         }
 
         function checkAnswer(selected, correct) {
-            const fb = document.getElementById('feedbackBox');
-            fb.classList.remove('hidden', 'bg-green-500/20', 'text-green-500', 'bg-red-500/20', 'text-red-500', 'animate-shake');
-            
-            if (selected === correct) {
-                fb.innerText = "EXCELLENT! +15 XP";
-                fb.className = "mt-6 p-4 rounded-xl text-center font-bold bg-green-500/20 text-green-500";
-                if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 70, origin: { y: 0.8 } });
-                setTimeout(() => {
-                    fb.classList.add('hidden');
-                    nextTask();
-                }, 1000);
+            if(selected === correct) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#002395', '#ffffff', '#ed2939']
+                });
+                notify("Magnifique! +10 Coins", "success");
+                APP_STATE.coins += 10;
+                APP_STATE.xp += 25;
+                APP_STATE.tasksCompleted += 1;
+                
+                currentTaskIndex++;
+                if(currentTaskIndex >= 5) {
+                    levelComplete();
+                } else {
+                    setTimeout(loadTask, 1000);
+                }
             } else {
-                fb.innerText = "CE N'EST PAS ÇA! RÉESSAYEZ.";
-                fb.className = "mt-6 p-4 rounded-xl text-center font-bold bg-red-500/20 text-red-500 animate-shake";
-                APP_STATE.accuracy = Math.max(0, APP_STATE.accuracy - 5);
-                updateUI();
+                notify("Try again!", "error");
+                document.getElementById('task-content').animate([
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(10px)' },
+                    { transform: 'translateX(0)' }
+                ], { duration: 300 });
             }
-        }
-
-        function nextTask() {
-            currentTaskIdx++;
-            if (currentTaskIdx < tasksPerLevel) {
-                showTask(activeLevel.tasks[currentTaskIdx]);
-            } else {
-                finishLevel();
-            }
-        }
-
-        function finishLevel() {
-            const reward = 50 + (activeLevel.id * 10);
-            APP_STATE.coins += reward;
-            APP_STATE.xp += 100;
-            APP_STATE.tasksFinished += 5;
-            if (activeLevel.id === APP_STATE.unlockedLevel) APP_STATE.unlockedLevel++;
-            
-            saveState();
             updateUI();
-            renderMap();
-            closeTask();
-
-            // Simple Success Overlay
-            const overlay = document.createElement('div');
-            overlay.className = "fixed inset-0 z-[200] flex items-center justify-center bg-blue-900/40 backdrop-blur-md";
-            overlay.innerHTML = `<div class='glass p-12 text-center'><h1 class='text-5xl font-black gold-gradient'>BRAVO!</h1><p class='mt-4 text-xl'>+${reward} Pièces récoltées</p></div>`;
-            document.body.appendChild(overlay);
-            setTimeout(() => overlay.remove(), 2000);
+            saveProgress();
         }
 
-        function closeTask() { document.getElementById('taskModal').classList.add('hidden'); }
+        function levelComplete() {
+            const overlay = document.getElementById('task-content');
+            if(currentLevelId === APP_STATE.level) APP_STATE.level++;
+            
+            overlay.innerHTML = `
+                <div class="text-center py-10">
+                    <i class="fas fa-crown text-8xl gold-text mb-6"></i>
+                    <h2 class="text-5xl font-black mb-4">LEVEL ${currentLevelId} CLEAR!</h2>
+                    <p class="text-2xl text-white/60 mb-8 italic">Your French is becoming elite.</p>
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="closeTask()" class="btn-premium px-12">CONTINUE</button>
+                    </div>
+                </div>
+            `;
+            renderLevels();
+            saveProgress();
+        }
 
-        function showSection(id) {
-            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden-section'));
-            document.getElementById(id + 'Section').classList.remove('hidden-section');
-            window.scrollTo(0,0);
+        function closeTask() {
+            document.getElementById('task-overlay').classList.add('hidden');
+        }
+
+        function buyItem(id) {
+            const prices = { 'theme-neon': 5000, 'text-gold': 12500 };
+            if(APP_STATE.coins >= prices[id]) {
+                APP_STATE.coins -= prices[id];
+                APP_STATE.inventory.push(id);
+                notify(`Purchased ${id.replace('-', ' ')}!`, "success");
+                updateUI();
+                saveProgress();
+            } else {
+                notify("Insufficient coins!", "error");
+            }
+        }
+
+        function openCrate(cost) {
+            if(APP_STATE.coins < cost) return notify("Insufficient coins!", "error");
+            
+            APP_STATE.coins -= cost;
+            updateUI();
+            
+            const overlay = document.getElementById('task-overlay');
+            overlay.classList.remove('hidden');
+            const content = document.getElementById('task-content');
+            
+            content.innerHTML = `
+                <div class="text-center flex flex-col items-center justify-center min-h-[400px]">
+                    <div class="w-48 h-48 rounded-3xl border-4 border-luxury-gold flex items-center justify-center animate-bounce">
+                        <i class="fas fa-box-open text-6xl gold-text"></i>
+                    </div>
+                    <h2 class="mt-8 text-3xl font-black gold-text">REVEALING...</h2>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const rarities = [
+                    { name: 'Common', color: 'text-gray-400' },
+                    { name: 'Rare', color: 'text-blue-400' },
+                    { name: 'Epic', color: 'text-purple-400' },
+                    { name: 'Legendary', color: 'text-orange-400' },
+                    { name: 'SINPLEX', color: 'rarity-sinplex' }
+                ];
+                const res = rarities[Math.floor(Math.random() * rarities.length)];
+                
+                content.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-sm font-bold uppercase tracking-widest opacity-50 mb-2">You Found</div>
+                        <h2 class="text-6xl font-black ${res.color} mb-8">${res.name} SKIN</h2>
+                        <div class="w-64 h-64 mx-auto glass flex items-center justify-center mb-8 border-luxury-gold shadow-[0_0_50px_rgba(212,175,55,0.3)]">
+                            <i class="fas fa-magic text-7xl gold-text"></i>
+                        </div>
+                        <button onclick="closeTask()" class="btn-premium px-12">COLLECT</button>
+                    </div>
+                `;
+                confetti({
+                    spread: 120,
+                    particleCount: 200,
+                    origin: { y: 0.6 }
+                });
+            }, 3000);
+        }
+
+        function notify(msg, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `glass px-6 py-4 flex items-center gap-3 border-l-4 ${type === 'success' ? 'border-green-500' : 'border-red-500'} animate-slideIn`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle text-green-500' : 'fa-exclamation-triangle text-red-500'}"></i>
+                <span class="font-bold">${msg}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
         }
 
         function redeemCode() {
-            const code = document.getElementById('promoCode').value.trim();
-            if (code === "new") {
+            const code = document.getElementById('promo-input').value;
+            if(code === "new") {
                 APP_STATE.coins += 50;
-                alert("Code validé! +50 Pièces");
-            } else if (code === "Legend.AymanPlaying2024.Exe") {
-                APP_STATE.coins += 999999;
-                alert("Cheat Code Activé: Richesse Infinie!");
+                notify("Code Valid! +50 Coins", "success");
+            } else if(code === "Legend.AymanPlaying2024.Exe") {
+                APP_STATE.coins += 9999999;
+                notify("GOD MODE ACTIVATED", "success");
+            } else {
+                notify("Invalid Code", "error");
             }
-            saveState(); updateUI();
-        }
-
-        function createParticles() {
-            for (let i = 0; i < 40; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                const size = Math.random() * 3 + 1;
-                p.style.width = size + 'px';
-                p.style.height = size + 'px';
-                p.style.left = Math.random() * 100 + 'vw';
-                p.style.top = Math.random() * 100 + 'vh';
-                p.style.animation = `float ${Math.random() * 5 + 5}s infinite ease-in-out`;
-                document.body.appendChild(p);
-            }
-        }
-
-        function resetData() {
-            if(confirm("Effacer définitivement votre progression?")) {
-                localStorage.removeItem('francium_data_v2');
-                window.location.reload();
-            }
-        }
-
-        function openCrate() {
-            if (APP_STATE.coins < 1000) return alert("Pas assez de pièces!");
-            APP_STATE.coins -= 1000;
             updateUI();
-            if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 120, colors: ['#ffd700', '#ffffff', '#002395'] });
-            saveState();
+            saveProgress();
+            document.getElementById('promo-input').value = '';
         }
+
+        const canvas = document.getElementById('particles-js');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.alpha = Math.random() * 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if(this.x > canvas.width) this.x = 0;
+                if(this.x < 0) this.x = canvas.width;
+                if(this.y > canvas.height) this.y = 0;
+                if(this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(212, 175, 55, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.onload = () => {
+            init();
+            resize();
+            for(let i=0; i<100; i++) particles.push(new Particle());
+            animateParticles();
+        };
+        window.onresize = resize;
     </script>
+
+    <!-- Footer -->
+    <footer class="glass mx-4 mt-20 p-10 border-none rounded-b-none text-center">
+        <div class="max-w-4xl mx-auto">
+            <h3 class="text-2xl font-black gold-text mb-4 tracking-widest">FRANÇIUM</h3>
+            <p class="text-white/40 mb-8 max-w-lg mx-auto">Elevating French language education through premium aesthetics and addictive gamification. Designed for the elite learner.</p>
+            <div class="flex justify-center gap-8 mb-10">
+                <a href="#" class="text-white/40 hover:text-luxury-gold transition"><i class="fab fa-github text-xl"></i></a>
+                <a href="#" class="text-white/40 hover:text-luxury-gold transition"><i class="fab fa-discord text-xl"></i></a>
+                <a href="#" class="text-white/40 hover:text-luxury-gold transition"><i class="fab fa-instagram text-xl"></i></a>
+            </div>
+            <div class="text-[10px] text-white/20 uppercase tracking-widest">
+                © 2024 Françium Labs. All rights reserved. Precision Crafted UI.
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>
